@@ -12,6 +12,14 @@ builder.Services.AddControllers(opt =>
   // opt.Filters.Add(new AuthorizeFilter(policy));
 });
 
+builder.Services.AddCors(opt =>
+{
+  opt.AddPolicy("CorsPolicy", policy =>
+  {
+    // later on this will be irrelevant 
+    policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+  });
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(opt =>
@@ -49,10 +57,9 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+//app.UseHttpsRedirection();
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
