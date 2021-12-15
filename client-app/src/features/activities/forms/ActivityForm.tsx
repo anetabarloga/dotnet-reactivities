@@ -1,15 +1,12 @@
+import { observer } from "mobx-react-lite";
 import React, { ChangeEvent, useState } from "react";
 import { Button, Form, Segment } from "semantic-ui-react";
-import { Activity } from "../../../app/models/Activity";
+import { useStore } from "../../../app/stores/store";
 
-interface Props {
-	activity: Activity | undefined;
-	closeForm: () => void;
-	createOrEdit: (activity: Activity) => void;
-	submitting: boolean;
-}
+export default observer(function ActivityForm() {
+	const { activityStore } = useStore();
+	const { closeForm, selectedActivity, createActivity, updateActivity, loading } = activityStore;
 
-export default function ActivityForm({ activity: selectedActivity, closeForm, createOrEdit, submitting }: Props) {
 	const initialState = selectedActivity ?? {
 		id: "",
 		title: "",
@@ -23,8 +20,7 @@ export default function ActivityForm({ activity: selectedActivity, closeForm, cr
 	const [activity, setActivity] = useState(initialState);
 
 	function HandleSubmit() {
-		createOrEdit(activity);
-		console.log(activity);
+		activity.id ? updateActivity(activity) : createActivity(activity);
 	}
 
 	function HandleInputChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -43,9 +39,9 @@ export default function ActivityForm({ activity: selectedActivity, closeForm, cr
 				<Form.Input type="date" placeholder="Date" value={activity.date} name="date" onChange={HandleInputChange} />
 				<Form.Input placeholder="City" value={activity.city} name="city" onChange={HandleInputChange} />
 				<Form.Input placeholder="Venue" value={activity.venue} name="venue" onChange={HandleInputChange} />
-				<Button loading={submitting} onClick={HandleSubmit} floated="right" positive content="Submit" />
-				<Button loading={submitting} onClick={closeForm} floated="right" type="submit" content="Cancel" />
+				<Button loading={loading} onClick={HandleSubmit} floated="right" positive content="Submit" />
+				<Button loading={loading} onClick={closeForm} floated="right" type="submit" content="Cancel" />
 			</Form>
 		</Segment>
 	);
-}
+});
