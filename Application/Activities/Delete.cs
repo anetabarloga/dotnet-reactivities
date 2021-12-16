@@ -3,38 +3,47 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Application.Core;
 using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore.Storage;
 using Persistence;
 
 namespace Application.Activities
 {
-  public class Delete
-  {
-    public class Command : IRequest
+    public class Delete
     {
-      public Guid Id { get; set; }
+        public class Command : IRequest<Result<Unit>>
+        {
+            public Guid Id { get; set; }
+        }
+
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext context;
+
+            public Handler(DataContext context)
+            {
+                this.context = context;
+            }
+
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                var activity = await context.Activities.FindAsync(request.Id);
+
+                if (activity == null)
+                {
+                    // here we simply return null unlike in the create which returned a Success Response with an empty value
+                    return null;
+                }
+
+                context.Remove(activity);
+
+                var result = await context.SaveChangesAsync() > 0;
+
+                return (result ? Result<Unit>.Success(Unit.Value) : Result<Unit>.Failure("Cannot delete the activity."));
+
+            }
+        }
     }
-
-    public class Handler : IRequestHandler<Command>
-    {
-      private readonly DataContext context;
-
-      public Handler(DataContext context)
-      {
-        this.context = context;
-      }
-
-      public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
-      {
-        var activity = await context.Activities.FindAsync(request.Id);
-
-        context.Remove(activity);
-
-        await context.SaveChangesAsync();
-        return Unit.Value;
-
-      }
-    }
-  }
 }
