@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity } from "../models/Activity";
-import { store, useStore } from "../stores/store";
+import { store } from "../stores/store";
 
 const sleep = (delay: number) => {
 	return new Promise((resolve) => {
