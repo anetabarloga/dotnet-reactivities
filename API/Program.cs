@@ -1,8 +1,11 @@
 using API.Extensions;
 using API.Middleware;
 using Application.Activities;
+using Domain;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Validations;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +16,7 @@ builder.Services.AddControllers().AddFluentValidation(config =>
     config.RegisterValidatorsFromAssemblyContaining<Create>();
 });
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -24,8 +28,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
     await context.Database.MigrateAsync();
-    await Seed.SeedData(context);
+    await Seed.SeedData(context, userManager);
 }
 catch (Exception ex)
 {
@@ -42,7 +47,6 @@ if (app.Environment.IsDevelopment())
     // We use custom exception middleware instead of exception pages.
     // app.UseDeveloperExceptionPage();
 
-    // swagger is like postman
     app.UseSwagger();
     app.UseSwaggerUI();
 }

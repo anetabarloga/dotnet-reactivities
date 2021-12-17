@@ -1,16 +1,34 @@
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Persistence
 {
-  public class Seed
-  {
-    public static async Task SeedData(DataContext context)
+    public class Seed
     {
-      // return if there are activities in the class alreadz
-      if (context.Activities.Any()) return;
+        public static async Task SeedData(DataContext context, UserManager<AppUser> userManager)
+        {
+            // return if there are activities in the class alreadz
+            if (context.Activities.Any()) return;
+            if (!userManager.Users.Any())
+            {
 
-      // otherwise seed new data
-      var activities = new List<Activity>
+                var tempBio = "Hi, I'm Bob. I love cooking andd gardening. Looking to connect with like-mided souls.";
+
+                var users = new List<AppUser>()
+            {
+                {new AppUser {DisplayName= "Bob", UserName= "bob", Email="bob@email.comm", Bio= tempBio }},
+                {new AppUser {DisplayName= "Alice", UserName= "alice", Email="alice@alimail.comm", Bio= tempBio }},
+                {new AppUser {DisplayName= "Jane", UserName= "jane", Email="jaine@email.comm", Bio= tempBio }},
+            };
+
+                foreach (var user in users)
+                {
+                    await userManager.CreateAsync(user, "Pa$$w0rd");
+                }
+            }
+
+            // otherwise seed new data
+            var activities = new List<Activity>
             {
                 new Activity
                 {
@@ -104,8 +122,10 @@ namespace Persistence
                 }
             };
 
-      await context.Activities.AddRangeAsync(activities);
-      await context.SaveChangesAsync();
+
+
+            await context.Activities.AddRangeAsync(activities);
+            await context.SaveChangesAsync();
+        }
     }
-  }
 }
