@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using API.DTO;
 using API.Services;
+using Application.Activities;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -21,7 +24,6 @@ namespace API.Controllers
             this.tokenService = tokenService;
             this.userManager = userManager;
             this.signInManager = signInManager;
-
         }
 
         [HttpPost("login")]
@@ -35,19 +37,59 @@ namespace API.Controllers
 
                 if (result.Succeeded)
                 {
-                    return new UserDto
-                    {
-                        DisplayName = user.DisplayName,
-                        Image = null,
-                        Token = tokenService.CreateToken(user),
-                        Username = user.UserName
-
-                    };
+                    return CreateUserDto(user);
                 }
             }
 
             return Unauthorized();
         }
 
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        {
+            if (await userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+            {
+                return BadRequest("Email already registered.");
+            }
+
+            if (await userManager.Users.AnyAsync(u => u.UserName == registerDto.Username))
+            {
+                return BadRequest("Username already registered.");
+            }
+
+            var user = new AppUser
+            {
+                UserName = registerDto.Username,
+                DisplayName = registerDto.DisplayName,
+                Email = registerDto.Email,
+                Bio = "Test bio"
+
+            };
+
+            var result = await userManager.CreateAsync(user, registerDto.Password);
+
+            return (result.Succeeded ? CreateUserDto(user) : BadRequest("Registration unsuccessfull."));
+        }
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var user = await userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+
+            return CreateUserDto(user);
+        }
+
+        private ActionResult<UserDto> CreateUserDto(AppUser user)
+        {
+            return new UserDto
+            {
+                DisplayName = user.DisplayName,
+                Username = user.UserName,
+                Image = null,
+                Token = tokenService.CreateToken(user)
+            };
+        }
     }
 }
