@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Core;
 using AutoMapper;
 using Domain;
@@ -40,7 +36,7 @@ namespace Application.Activities
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 // get activity from db
-                var activity = await context.Activities.FindAsync(request.Activity.Id);
+                var activity = await context.Activities.FindAsync(request.Activity?.Id);
 
                 if (activity == null) return null!;
 

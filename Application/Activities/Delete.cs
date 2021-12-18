@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Application.Core;
-using Domain;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Storage;
 using Persistence;
 
 namespace Application.Activities
@@ -34,7 +27,7 @@ namespace Application.Activities
                 if (activity == null)
                 {
                     // here we simply return null unlike in the create which returned a Success Response with an empty value
-                    return null;
+                    return null!;
                 }
 
                 context.Remove(activity);

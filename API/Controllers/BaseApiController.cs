@@ -1,6 +1,7 @@
 using Application.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+
 namespace API.Controllers;
 
 [ApiController]

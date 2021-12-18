@@ -8,11 +8,11 @@ import { Link } from "react-router-dom";
 import { Formik, Form } from "formik";
 import { v4 as uuid } from "uuid";
 import * as yup from "yup";
-import CommonTextInput from "../../../app/common/form/CommonTextInput";
-import CommonTextArea from "../../../app/common/form/CommonTextArea";
-import DropdownInput from "../../../app/common/form/DropdownInput";
+import CommonTextInput from "../../../app/common/forms/CommonTextInput";
+import CommonTextArea from "../../../app/common/forms/CommonTextArea";
+import DropdownInput from "../../../app/common/forms/DropdownInput";
 import { categories } from "../../../app/common/enums/categories";
-import DateInput from "../../../app/common/form/DateInput";
+import DateInput from "../../../app/common/forms/DateInput";
 import { Activity } from "../../../app/models/Activity";
 
 export default observer(function ActivityForm() {
@@ -53,7 +53,7 @@ export default observer(function ActivityForm() {
 		}
 	}
 
-	if (loadingInitial) return <LoadingComponent content="Loading ativity..." />;
+	if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
 
 	return (
 		<Segment clearing>

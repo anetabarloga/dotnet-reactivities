@@ -1,12 +1,7 @@
 using System.Security.Claims;
 using API.DTO;
 using API.Services;
-using Application.Activities;
-using Domain;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -49,12 +44,15 @@ namespace API.Controllers
         {
             if (await userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
             {
-                return BadRequest("Email already registered.");
+                ModelState.AddModelError("email", "Email already registered.");
+                return ValidationProblem();
             }
 
             if (await userManager.Users.AnyAsync(u => u.UserName == registerDto.Username))
             {
-                return BadRequest("Username already registered.");
+                // return BadRequest("Username already registered.");
+                ModelState.AddModelError("username", "Username taken.");
+                return ValidationProblem();
             }
 
             var user = new AppUser

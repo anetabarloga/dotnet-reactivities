@@ -1,14 +1,4 @@
-using API.Extensions;
-using API.Middleware;
 using Application.Activities;
-using Domain;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Validations;
-using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +19,26 @@ builder.Services.AddIdentityServices(builder.Configuration);
 
 var app = builder.Build();
 
-// check if db exist and if not migrate
-using var scope = app.Services.CreateScope();
+// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMiddleware>();
 
+if (app.Environment.IsDevelopment())
+{
+    // error stack track is hidden in the production build in order to not share sensitive/obscure information with the user.
+    // We use custom exception middleware instead of exception pages.
+    // app.UseDeveloperExceptionPage();
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("CorsPolicy");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+// Seed data
+using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 
 try
@@ -47,23 +54,7 @@ catch (Exception ex)
     logger.LogError(ex, "Error occured during migration");
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    // error stack track is hidden in the production build in order to not share sensitive/obscure information with the user.
-    // We use custom exception middleware instead of exception pages.
-    // app.UseDeveloperExceptionPage();
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-//app.UseHttpsRedirection();
-app.UseCors("CorsPolicy");
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
+await app.RunAsync();
+// app.Run();
