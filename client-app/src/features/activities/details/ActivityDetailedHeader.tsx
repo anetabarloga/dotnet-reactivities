@@ -34,7 +34,10 @@ export default observer(function ActivityDetailedHeader({ activity }: Props) {
 								<Header size="huge" content={activity.title} style={{ color: "white" }} />
 								<p>{format(activity.date!, "dd MMM yyyy")}</p>
 								<p>
-									Hosted by <strong>Bob</strong>
+									Hosted by{" "}
+									<strong>
+										<Link to={`/profiles/${activity.host?.username}`}>{activity.host?.displayName}</Link>
+									</strong>
 								</p>
 							</Item.Content>
 						</Item>
@@ -42,8 +45,8 @@ export default observer(function ActivityDetailedHeader({ activity }: Props) {
 				</Segment>
 			</Segment>
 			<Segment clearing attached="bottom">
-				<Button color="teal">Join Activity</Button>
-				<Button>Cancel attendance</Button>
+				{activity.isHost ? <Button color="teal">Cancel Activity</Button> : activity.isGoing ? <Button>Cancel attendance</Button> : <Button color="teal">Join Activity</Button>}
+
 				<Button as={Link} to={`/manage/${activity.id}`} color="orange" floated="right" content="Manage Event" />
 			</Segment>
 		</Segment.Group>
