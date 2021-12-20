@@ -1,33 +1,38 @@
 using Application.Core;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Activities
 {
     public class Details
     {
-        public class Query : IRequest<Result<Activity>>
+        public class Query : IRequest<Result<ActivityDto>>
         {
             public Guid Id { get; set; }
 
         }
 
-        public class Handler : IRequestHandler<Query, Result<Activity>>
+        public class Handler : IRequestHandler<Query, Result<ActivityDto>>
         {
-            private readonly DataContext _context;
+            private readonly DataContext context;
+            private readonly IMapper mapper;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IMapper mapper)
             {
-                _context = context;
+                this.context = context;
+                this.mapper = mapper;
             }
 
-            public async Task<Result<Activity>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<ActivityDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var activity = await _context.Activities.FindAsync(request.Id);
+                var activity = await context.Activities.ProjectTo<ActivityDto>(mapper.ConfigurationProvider).FirstOrDefaultAsync(x => x.Id == request.Id);
 
                 // we don't have to specify failure here. We will check in the API controller if the activity is null and handle the error there.
-                return Result<Activity>.Success(activity);
+                return Result<ActivityDto>.Success(activity);
             }
         }
     }

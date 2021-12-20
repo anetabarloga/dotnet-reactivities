@@ -1,4 +1,6 @@
 using Application.Activities;
+using Application.Interfaces;
+using Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,8 @@ builder.Services.AddControllers(opt =>
 });
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 
 var app = builder.Build();
 
