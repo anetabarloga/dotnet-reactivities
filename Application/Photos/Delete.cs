@@ -1,22 +1,19 @@
 using Application.Core;
 using Application.Interfaces;
-using Domain;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Photos
 {
-    public class Add
+    public class Delete
     {
-        // we must return a result despite sending a command as we need the public id and url back
-        public class Command : IRequest<Result<Photo>>
+        public class Command : IRequest<Result<Unit>>
         {
-            public IFormFile File { get; set; }
+            public string Id { get; set; }
         }
 
-        class Handler : IRequestHandler<Command, Result<Photo>>
+        class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext context;
             private readonly IPhotoAccessor photoAccessor;
@@ -29,7 +26,7 @@ namespace Application.Photos
                 this.userAccessor = userAccessor;
             }
 
-            public async Task<Result<Photo>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 // get user from db using eager loading
                 var user = await context.Users.Include(p => p.Photos)
@@ -40,24 +37,26 @@ namespace Application.Photos
                     return null;
                 }
 
-                var photoUploadResult = await photoAccessor.AddPhoto(request.File);
-                var photo = new Photo
-                {
-                    Url = photoUploadResult.Url,
-                    Id = photoUploadResult.PublicId
-                };
 
-                // set photo as main if no main set for user
-                if (!user.Photos.Any(p => p.IsMain))
+                var photo = user.Photos.FirstOrDefault(p => p.Id == request.Id);
+
+                if (photo == null) return null;
+
+                if (photo.IsMain)
+                    return Result<Unit>.Failure("You cannot delete your profile photo. Select a new profile photo first.");
+
+                var deleted = await photoAccessor.DeletePhoto(photo.Id);
+
+                if (deleted == null)
                 {
-                    photo.IsMain = true;
+                    return Result<Unit>.Failure("Problem deleting photo from Cloudinary.");
                 }
 
-                user.Photos.Add(photo);
+                user.Photos.Remove(photo);
 
                 var result = await context.SaveChangesAsync() > 0;
 
-                return (result ? Result<Photo>.Success(photo) : Result<Photo>.Failure("Problem adding photo."));
+                return (result ? Result<Unit>.Success(Unit.Value) : Result<Unit>.Failure("Problem deleting photo from API."));
             }
         }
     }

@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Security.Claims;
 using API.DTO;
 using API.Services;
@@ -24,7 +25,8 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await userManager.FindByEmailAsync(loginDto.Email);
+            // load user from db and eagerly load photo
+            var user = await userManager.Users.Include(p => p.Photos).FirstOrDefaultAsync(x => x.Email == loginDto.Email);
 
             if (user != null)
             {
@@ -60,8 +62,7 @@ namespace API.Controllers
                 UserName = registerDto.Username,
                 DisplayName = registerDto.DisplayName,
                 Email = registerDto.Email,
-                Bio = "Test bio"
-
+                Bio = "Test bio",
             };
 
             var result = await userManager.CreateAsync(user, registerDto.Password);
@@ -74,7 +75,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var user = await userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+            var user = await userManager.Users.Include(p => p.Photos).FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
             return CreateUserDto(user);
         }
@@ -85,7 +86,7 @@ namespace API.Controllers
             {
                 DisplayName = user.DisplayName,
                 Username = user.UserName,
-                Image = null,
+                Image = user?.Photos?.FirstOrDefault(x => x.IsMain)?.Url,
                 Token = tokenService.CreateToken(user)
             };
         }
