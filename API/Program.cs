@@ -19,7 +19,7 @@ builder.Services.AddControllers(opt =>
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserAccessor, UserAccessor>();
+
 
 var app = builder.Build();
 

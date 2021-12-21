@@ -1,5 +1,9 @@
 using Application.Activities;
 using Application.Core;
+using Application.Interfaces;
+using Application.Photos;
+using Infrastructure.Photos;
+using Infrastructure.Security;
 using MediatR;
 
 namespace API.Extensions;
@@ -13,8 +17,8 @@ public static class ApplicationServiceExtensions
         {
             opt.AddPolicy("CorsPolicy", policy =>
         {
-              policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
-          });
+            policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+        });
         });
 
 
@@ -28,6 +32,10 @@ public static class ApplicationServiceExtensions
         // we must tell the mediator where and in which assembly the handlers are located
         services.AddMediatR(typeof(List.Handler).Assembly);
         services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+        services.AddScoped<IUserAccessor, UserAccessor>();
+        services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+
+        services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
 
         return services;
     }
