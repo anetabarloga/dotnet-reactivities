@@ -31,7 +31,7 @@ namespace Application.Photos
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Transformation = new Transformation().Width(500).Height(500).Crop("fill")
+                    Transformation = new Transformation().Width(500).Height(500).Crop("fill").Quality(1).FetchFormat("auto")
                 };
 
                 var uploadResult = cloudinary.UploadAsync(uploadParams).Result;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Icon, Image } from "semantic-ui-react";
-import { Profile } from "../../app/models/Profile";
+import { Profile } from "../../../app/models/Profile";
 
 interface Props {
 	profile: Profile;

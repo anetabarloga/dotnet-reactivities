@@ -16,6 +16,7 @@ import LoginForm from "../../features/users/forms/LoginForm";
 import { useStore } from "../stores/store";
 import LoadingComponent from "./LoadingComponent";
 import ModalContainer from "../common/modals/ModalContainer";
+import ProfilePage from "../../features/users/profiles/ProfilePage";
 
 function App() {
 	const location = useLocation();
@@ -23,7 +24,7 @@ function App() {
 
 	useEffect(() => {
 		if (commonStore.token) {
-			userStore.getUSer().finally(() => commonStore.setAppLoaded());
+			userStore.getUser().finally(() => commonStore.setAppLoaded());
 		} else {
 			commonStore.setAppLoaded();
 		}
@@ -44,6 +45,7 @@ function App() {
 							<Switch>
 								<Route exact path="/activities" component={ActivityDashboard} />
 								<Route path="/activities/:id" component={ActivityDetails} />
+								<Route path="/profiles/:username" component={ProfilePage} />
 								<Route key={location.key} path={["/createActivity", "/manage/:id"]} component={ActivityForm} />
 								<Route path="/errors" component={TestErrors} />
 								<Route path="/server-error" component={ServerError} />
