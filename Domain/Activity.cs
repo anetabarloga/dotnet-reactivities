@@ -3,7 +3,7 @@ namespace Domain
     // Activity is a entity
     public class Activity
     {
-        // we will generate the guid on client side so that we dont have to wait for server to generate and send it back
+        // generate guid on client side so that we dont have to wait for server to generate and send it back
         public Guid Id { get; set; }
         public string Title { get; set; }
         public DateTime Date { get; set; }
@@ -14,5 +14,6 @@ namespace Domain
         public bool isCancelled { get; set; }
 
         public ICollection<ActivityAttendee> Attendees { get; set; } = new List<ActivityAttendee>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

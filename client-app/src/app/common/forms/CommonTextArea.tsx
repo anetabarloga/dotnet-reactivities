@@ -6,6 +6,7 @@ interface Props {
 	name: string;
 	placeholder: string;
 	label?: string;
+	rows?: number;
 }
 
 export default function CommonTextArea(props: Props) {
@@ -14,7 +15,7 @@ export default function CommonTextArea(props: Props) {
 	return (
 		<Form.Field error={meta.touched && !!meta.error}>
 			<label>{props.label}</label>
-			<textarea {...field} {...props} />
+			<textarea {...field} {...props} rows={props.rows} />
 			{meta.touched && meta.error ? (
 				<Label basic color="red">
 					{" "}

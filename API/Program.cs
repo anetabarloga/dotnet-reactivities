@@ -1,6 +1,5 @@
+using API.SignalR;
 using Application.Activities;
-using Application.Interfaces;
-using Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +39,8 @@ app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/chat");
+
 
 // Seed data
 using var scope = app.Services.CreateScope();
@@ -57,8 +58,6 @@ catch (Exception ex)
     var logger = services.GetRequiredService<ILogger>();
     logger.LogError(ex, "Error occured during migration");
 }
-
-
 
 await app.RunAsync();
 // app.Run();
