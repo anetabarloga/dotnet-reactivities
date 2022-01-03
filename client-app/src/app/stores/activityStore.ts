@@ -24,7 +24,7 @@ export default class ActivityStore {
 	get groupedActivities() {
 		return Object.entries(
 			this.activitiesByDate.reduce((activities, activity) => {
-				let date = format(activity.date!, "dd mmm yyyy");
+				let date = format(activity.date!, "dd MMM yyyy");
 				activities[date] = activities[date] ? [...activities[date], activity] : [activity];
 				return activities;
 			}, {} as { [ey: string]: Activity[] })
@@ -86,6 +86,8 @@ export default class ActivityStore {
 		}
 
 		activity.date = new Date(activity.date!);
+
+		console.log(`Activity date formatted to ${activity.date}`);
 		this.activityRegistry.set(activity.id, activity);
 	};
 
@@ -101,8 +103,11 @@ export default class ActivityStore {
 		newActivity.hostUsername = user!.username;
 		newActivity.attendees = [attendee];
 		this.setActivity(newActivity);
+
+		console.log(`Creating activity with date from values ${activity.date}`);
 		try {
 			await agent.Activities.create(activity);
+
 			runInAction(() => {
 				this.selectedActivity = new Activity();
 			});
