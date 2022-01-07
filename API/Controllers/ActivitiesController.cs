@@ -1,14 +1,15 @@
 using Application.Activities;
+using Application.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 public class ActivitiesController : BaseApiController
 {
     [HttpGet]
-    public async Task<IActionResult> GetActivities()
+    public async Task<IActionResult> GetActivities([FromQuery] PagingParams pars)
     {
         // inside send we instantiate a new isntance of the handler
-        return HandleResult(await Mediator.Send(new List.Query()));
+        return HandlePagedResult(await Mediator.Send(new List.Query { Params = pars }));
     }
 
     // activities/id
@@ -16,16 +17,12 @@ public class ActivitiesController : BaseApiController
     public async Task<ActionResult<Activity>> GetActivity(Guid id)
     {
         return HandleResult(await Mediator.Send(new Details.Query { Id = id }));
-
-        // alternative http error handling method
-        // return (activity != null ? activity : NotFound());
     }
 
     [HttpPost]
     // API controller should be able to pick up the activity object from body automatically. IActionResult gives  acces to the http resonse.
     public async Task<IActionResult> CreateActivity(Activity activity)
     {
-        // object initializer syntax Command {Sth = sth}
         return HandleResult(await Mediator.Send(new Create.Command { Activity = activity }));
     }
 
