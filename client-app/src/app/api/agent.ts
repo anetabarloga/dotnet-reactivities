@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity, ActivityFormValues } from "../models/Activity";
 import { Photo, Profile } from "../models/Profile";
-
 import { User, UserFormValues } from "../models/User";
 import { store } from "../stores/store";
 
@@ -94,7 +93,7 @@ const Account = {
 };
 
 const Profiles = {
-	get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+	getProfile: (username: string) => requests.get<Profile>(`/profiles/${username}`),
 	uploadPhoto: (file: Blob) => {
 		let formData = new FormData();
 		formData.append("File", file);
@@ -108,6 +107,10 @@ const Profiles = {
 	deletePhoto: (id: string) => {
 		requests.del(`/photos/${id}`);
 	},
+	updateFollowings: (username: string) => {
+		requests.post(`/follow/${username}`, {});
+	},
+	listFollowings: (username: string, predicate: string) => requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
 };
 
 const agent = { Activities, Account, Profiles };

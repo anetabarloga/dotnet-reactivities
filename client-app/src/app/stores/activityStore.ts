@@ -86,8 +86,6 @@ export default class ActivityStore {
 		}
 
 		activity.date = new Date(activity.date!);
-
-		console.log(`Activity date formatted to ${activity.date}`);
 		this.activityRegistry.set(activity.id, activity);
 	};
 
@@ -103,8 +101,6 @@ export default class ActivityStore {
 		newActivity.hostUsername = user!.username;
 		newActivity.attendees = [attendee];
 		this.setActivity(newActivity);
-
-		console.log(`Creating activity with date from values ${activity.date}`);
 		try {
 			await agent.Activities.create(activity);
 
@@ -191,5 +187,16 @@ export default class ActivityStore {
 
 	clearSelectedActivity = () => {
 		this.selectedActivity = undefined;
+	};
+
+	updateAttendeeFollowing = (username: string) => {
+		this.activityRegistry.forEach((activity) => {
+			activity.attendees!.forEach((attendee) => {
+				if (attendee.username === username) {
+					attendee.following ? attendee.followersCount-- : attendee.followersCount++;
+					attendee.following = !attendee.following;
+				}
+			});
+		});
 	};
 }
