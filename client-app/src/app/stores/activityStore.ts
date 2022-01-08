@@ -1,6 +1,7 @@
 import { format } from "date-fns";
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
+import { Filters } from "../common/enums/Filters";
 import { Activity, ActivityFormValues } from "../models/activity";
 import { Pagination, PagingParams } from "../models/pagination";
 import { Profile } from "../models/profile";
@@ -14,9 +15,20 @@ export default class ActivityStore {
 	loadingInitial = false;
 	pagination: Pagination | null = null;
 	pagingParams = new PagingParams();
+	predicate = new Map().set(Filters.all, true);
 
 	constructor() {
 		makeAutoObservable(this);
+
+		reaction(
+			() => this.predicate.keys(),
+			() => {
+				// reset pagination to first page of result after applying new filter
+				this.pagingParams = new PagingParams();
+				this.activityRegistry.clear();
+				this.loadActivities();
+			}
+		);
 	}
 
 	// computed properties
@@ -30,7 +42,7 @@ export default class ActivityStore {
 				let date = format(activity.date!, "dd MMM yyyy");
 				activities[date] = activities[date] ? [...activities[date], activity] : [activity];
 				return activities;
-			}, {} as { [ey: string]: Activity[] })
+			}, {} as { [key: string]: Activity[] })
 		);
 	}
 
@@ -38,21 +50,62 @@ export default class ActivityStore {
 		const params = new URLSearchParams();
 		params.append("pageNumber", this.pagingParams.pageNumber.toString());
 		params.append("pageSize", this.pagingParams.pageSize.toString());
+
+		this.predicate.forEach((value, key) => {
+			console.log(`Appending param: ${key} with value: ${value}`);
+			if (key === Filters.startDate) {
+				params.append(key, (value as Date).toISOString());
+			} else {
+				params.append(key, value);
+			}
+		});
 		return params;
 	}
+
+	setPredicate = (predicate: string, value: string | Date) => {
+		const resetPredicate = () => {
+			this.predicate.forEach((value, key) => {
+				if (key !== Filters.startDate) this.predicate.delete(key);
+			});
+		};
+
+		switch (predicate) {
+			case Filters.all:
+				debugger;
+				resetPredicate();
+				this.predicate.set(Filters.all, value);
+				break;
+			case Filters.isGoing:
+				resetPredicate();
+				this.predicate.set(Filters.isGoing, value);
+				break;
+			case Filters.isHost:
+				resetPredicate();
+				this.predicate.set(Filters.isHost, value);
+				break;
+			case Filters.startDate:
+				// we must first delete previous date to trigger change reaction
+				this.predicate.delete(Filters.startDate);
+				this.predicate.set(Filters.startDate, value);
+				break;
+			default:
+				console.error("Predicate key unknown!");
+				break;
+		}
+	};
 
 	loadActivities = async () => {
 		this.setLoadingInitial(true);
 		try {
-			var result = await agent.Activities.list(this.axiosParams);
+			const result = await agent.Activities.list(this.axiosParams);
 			result.data.forEach((activity) => {
 				this.setActivity(activity);
 			});
+
 			this.setPagination(result.pagination);
 			this.setLoadingInitial(false);
 		} catch (error) {
 			console.log(error);
-
 			this.setLoadingInitial(false);
 		}
 	};

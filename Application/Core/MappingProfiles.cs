@@ -1,11 +1,10 @@
 using Application.Activities;
 using Application.Comments;
-using AutoMapper;
 using Domain;
 
 namespace Application.Core
 {
-    public class MappingProfiles : Profile
+    public class MappingProfiles : AutoMapper.Profile
     {
         public MappingProfiles()
         {

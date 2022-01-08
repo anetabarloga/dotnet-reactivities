@@ -32,7 +32,7 @@ public class BaseApiController : ControllerBase
 
     protected ActionResult HandlePagedResult<T>(Result<PagedList<T>> result)
     {
-        if (result.isSuccess && result.Value != null)
+        if (result != null && result.isSuccess && result.Value != null)
         {
             Response.AddPaginationHeader(result.Value.CurrentPage, result.Value.ItemsPerPage, result.Value.TotalItems, result.Value.TotalPages);
             return Ok(result.Value);

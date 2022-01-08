@@ -1,12 +1,11 @@
 using Application.Activities;
-using Application.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 public class ActivitiesController : BaseApiController
 {
     [HttpGet]
-    public async Task<IActionResult> GetActivities([FromQuery] PagingParams pars)
+    public async Task<IActionResult> GetActivities([FromQuery] ActivityParams pars)
     {
         // inside send we instantiate a new isntance of the handler
         return HandlePagedResult(await Mediator.Send(new List.Query { Params = pars }));
