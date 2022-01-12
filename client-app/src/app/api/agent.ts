@@ -118,6 +118,9 @@ const Profiles = {
 	updateFollowings: (username: string) => {
 		requests.post(`/follow/${username}`, {});
 	},
+	updateProfile: (profile: Partial<Profile>) => {
+		requests.put(`/profiles`, profile);
+	},
 	listFollowings: (username: string, predicate: string) => requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
 	listActivities: (username: string, predicate: string) => requests.get<UserActivity[]>(`/profiles/${username}/activities?predicate=${predicate}`),
 };
