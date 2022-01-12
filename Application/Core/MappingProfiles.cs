@@ -1,5 +1,6 @@
 using Application.Activities;
 using Application.Comments;
+using Application.Profiles;
 using Domain;
 
 namespace Application.Core
@@ -24,11 +25,18 @@ namespace Application.Core
                 .ForMember(d => d.FollowingsCount, opt => opt.MapFrom(src => src.AppUser.Followings.Count))
                 .ForMember(d => d.Following, opt => opt.MapFrom(src => src.AppUser.Followers.Any(u => u.Observer.UserName == currentUsername)));
 
+            CreateMap<ActivityAttendee, UserActivityDto>()
+                .ForMember(i => i.Id, opt => opt.MapFrom(src => src.ActivityId))
+                .ForMember(d => d.Category, opt => opt.MapFrom(src => src.Activity.Category))
+                .ForMember(d => d.Date, opt => opt.MapFrom(src => src.Activity.Date))
+                .ForMember(d => d.Title, opt => opt.MapFrom(src => src.Activity.Title))
+                .ForMember(d => d.HostUsername, opt => opt.MapFrom(src => src.Activity.Attendees.FirstOrDefault(x => x.IsHost).AppUser.UserName));
+
             CreateMap<AppUser, Profiles.Profile>()
-                .ForMember(i => i.Image, opt => opt.MapFrom(src => src.Photos.FirstOrDefault(x => x.IsMain).Url))
-                .ForMember(d => d.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count))
-                .ForMember(d => d.FollowingsCount, opt => opt.MapFrom(src => src.Followings.Count))
-                .ForMember(d => d.Following, opt => opt.MapFrom(src => src.Followers.Any(u => u.Observer.UserName == currentUsername)));
+                    .ForMember(i => i.Image, opt => opt.MapFrom(src => src.Photos.FirstOrDefault(x => x.IsMain).Url))
+                    .ForMember(d => d.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count))
+                    .ForMember(d => d.FollowingsCount, opt => opt.MapFrom(src => src.Followings.Count))
+                    .ForMember(d => d.Following, opt => opt.MapFrom(src => src.Followers.Any(u => u.Observer.UserName == currentUsername)));
 
             CreateMap<Comment, CommentDto>()
                 .ForMember(d => d.DisplayName, opt => opt.MapFrom(src => src.Author.DisplayName))
