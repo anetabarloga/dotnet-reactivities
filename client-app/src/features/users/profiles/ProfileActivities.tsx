@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { SyntheticEvent, useEffect } from "react";
-import { Card, Divider, Grid, Header, Tab, TabProps } from "semantic-ui-react";
+import { Card, Grid, Header, Tab, TabProps } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
 import ActivityCard from "./ActivityCard";
 

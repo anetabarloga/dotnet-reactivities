@@ -52,7 +52,6 @@ export default class ActivityStore {
 		params.append("pageSize", this.pagingParams.pageSize.toString());
 
 		this.predicate.forEach((value, key) => {
-			console.log(`Appending param: ${key} with value: ${value}`);
 			if (key === Filters.startDate) {
 				params.append(key, (value as Date).toISOString());
 			} else {

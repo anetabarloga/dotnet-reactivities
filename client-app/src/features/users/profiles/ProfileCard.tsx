@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card, Icon, Image } from "semantic-ui-react";
 import { Profile } from "../../../app/models/Profile";
-import FollowButton from "./FollowButton";
 
 interface Props {
 	profile: Profile;
@@ -10,7 +9,7 @@ interface Props {
 
 export default function ProfileCard({ profile }: Props) {
 	const truncate = (bio: string | undefined) => {
-		return bio != undefined && bio.length > 40 ? bio.substring(0, 37) + "..." : bio;
+		return bio !== undefined && bio.length > 40 ? bio.substring(0, 37) + "..." : bio;
 	};
 
 	return (

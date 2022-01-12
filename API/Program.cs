@@ -1,5 +1,6 @@
 using API.SignalR;
 using Application.Activities;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,12 +36,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDefaultFiles();  // use index.html as default
+app.UseStaticFiles();   // serce static files from wwwroot
+
 app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// map endpoints
 app.MapControllers();
 app.MapHub<ChatHub>("/chat");
-
+app.MapFallbackToController("Index", "Fallback");
 
 // Seed data
 using var scope = app.Services.CreateScope();

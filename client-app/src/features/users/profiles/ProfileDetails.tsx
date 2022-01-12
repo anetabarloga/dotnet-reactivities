@@ -1,4 +1,3 @@
-import { profile } from "console";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { Button, Divider, Grid, Header, Tab } from "semantic-ui-react";
