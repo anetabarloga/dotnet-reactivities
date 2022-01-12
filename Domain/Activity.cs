@@ -1,9 +1,7 @@
 namespace Domain
 {
-    // Activity is a entity
     public class Activity
     {
-        // generate guid on client side so that we dont have to wait for server to generate and send it back
         public Guid Id { get; set; }
         public string Title { get; set; }
         public DateTime Date { get; set; }

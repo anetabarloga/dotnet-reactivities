@@ -1,6 +1,5 @@
 using Application.Core;
 using Application.Interfaces;
-using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +27,11 @@ namespace Application.Profiles
         {
             private readonly DataContext context;
             private readonly IUserAccessor userAccessor;
-            private readonly IMapper mapper;
 
-            public Handler(DataContext context, IUserAccessor userAccessor, IMapper mapper)
+            public Handler(DataContext context, IUserAccessor userAccessor)
             {
                 this.context = context;
                 this.userAccessor = userAccessor;
-                this.mapper = mapper;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)

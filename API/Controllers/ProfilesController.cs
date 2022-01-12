@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Application.Profiles;
 using Microsoft.AspNetCore.Mvc;
 

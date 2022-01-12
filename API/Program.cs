@@ -1,6 +1,6 @@
 using API.SignalR;
 using Application.Activities;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.OpenApi.Any;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,9 +44,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // map endpoints
+
 app.MapControllers();
 app.MapHub<ChatHub>("/chat");
 app.MapFallbackToController("Index", "Fallback");
+
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+
 
 // Seed data
 using var scope = app.Services.CreateScope();
@@ -61,7 +67,7 @@ try
 }
 catch (Exception ex)
 {
-    var logger = services.GetRequiredService<ILogger>();
+    var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "Error occured during migration");
 }
 

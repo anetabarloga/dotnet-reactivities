@@ -7,6 +7,7 @@ using Infrastructure.Security;
 using MediatR;
 
 namespace API.Extensions;
+
 public static class ApplicationServiceExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
@@ -16,15 +17,15 @@ public static class ApplicationServiceExtensions
         services.AddCors(opt =>
         {
             opt.AddPolicy("CorsPolicy", policy =>
-        {
-            policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithOrigins("http://localhost:3000");
-        });
+            {
+                policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithOrigins("http://localhost:3000");
+            });
         });
 
 
         services.AddDbContext<DataContext>(opt =>
         {
-            opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
+            opt.UseNpgsql(config.GetConnectionString("DefaultConnection"));
         });
 
         services.AddEndpointsApiExplorer();
