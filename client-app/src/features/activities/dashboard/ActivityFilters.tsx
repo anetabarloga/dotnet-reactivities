@@ -18,7 +18,7 @@ export default observer(function ActivityFilters() {
 				<Menu.Item content="I'm hosting" active={predicate.has(Filters.isHost)} onClick={() => setPredicate(Filters.isHost, "true")} />
 			</Menu>
 			<Header />
-			<Calendar onChange={(date: Date) => setPredicate(Filters.startDate, date as Date)} value={predicate.get(Filters.startDate) || new Date()} />
+			<Calendar onChange={(date: Date | null) => setPredicate(Filters.startDate, date as Date)} value={predicate.get(Filters.startDate) || new Date()} />
 		</>
 	);
 });
