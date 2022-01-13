@@ -11,7 +11,6 @@ public class ActivitiesController : BaseApiController
         return HandlePagedResult(await Mediator.Send(new List.Query { Params = pars }));
     }
 
-    // activities/id
     [HttpGet("{id}")]
     public async Task<ActionResult<Activity>> GetActivity(Guid id)
     {

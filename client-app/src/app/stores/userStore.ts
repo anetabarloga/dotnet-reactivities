@@ -15,10 +15,6 @@ export default class UserStore {
 		return !!this.user;
 	}
 
-	setDisplayName = (name: string) => {
-		if (this.user) this.user.displayName = name;
-	};
-
 	login = async (creds: UserFormValues) => {
 		try {
 			const user = await agent.Account.login(creds);
@@ -33,7 +29,7 @@ export default class UserStore {
 
 	logout = () => {
 		store.commonStore.setToken(null);
-		/// window remove jwt
+		window.localStorage.removeItem("jwt");
 		this.user = null;
 		history.push("/");
 	};
@@ -61,5 +57,9 @@ export default class UserStore {
 
 	setImage = (image: string) => {
 		if (this.user) this.user.image = image;
+	};
+
+	setDisplayName = (name: string) => {
+		if (this.user) this.user.displayName = name;
 	};
 }

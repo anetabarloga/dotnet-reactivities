@@ -26,14 +26,35 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();
 
+// security headers
+app.UseXContentTypeOptions();
+app.UseReferrerPolicy(opt => opt.NoReferrer());
+app.UseXXssProtection(opt => opt.EnabledWithBlockMode());
+app.UseXfo(opt => opt.Deny());
+app.UseCsp(opt => opt
+    .BlockAllMixedContent()
+    .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com"))
+    .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+    .FormActions(s => s.Self())
+    .FrameAncestors(s => s.Self())
+    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com"))
+    .ScriptSources(s => s.Self().CustomSources("sha256-vlr3dtCFRyQ4xYPDJ6OPXr661dki/90PZIXzPqkQUVs=")));
+
 if (app.Environment.IsDevelopment())
 {
-    // error stack track is hidden in the production build in order to not share sensitive/obscure information with the user.
-    // We use custom exception middleware instead of exception pages.
-    // app.UseDeveloperExceptionPage();
-
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.Use(async (context, next) =>
+    {
+        // security policy - if the site was accessed using HTTPS then the browser notes it down and future request using HTTP will be redirected to HTTPS
+        context.Response.Headers.Add("Strict-Transport-Security", "max-age=31536000");
+
+        // call the next piece of middleware 
+        await next.Invoke();
+    });
 }
 
 app.UseDefaultFiles();  // use index.html as default
@@ -51,8 +72,6 @@ app.MapFallbackToController("Index", "Fallback");
 
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-
 
 // Seed data
 using var scope = app.Services.CreateScope();
