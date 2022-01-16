@@ -45,6 +45,7 @@ public static class IdentityServiceExtensions
             };
         });
 
+
         services.AddAuthorization(opt =>
         {
             opt.AddPolicy("IsActivityHost", policy =>

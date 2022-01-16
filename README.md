@@ -30,6 +30,7 @@ Disclaimer: Bear in mind that the app is created for learning purposes and thus 
     - Private messaging feature
     - Expand user profile features: interest tags, location, age
     - Token refresh
+    - design for mobile
 
 ## Bug Reports
 
