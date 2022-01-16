@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -26,6 +25,7 @@ namespace API.Controllers
             this.httpClient = new HttpClient { BaseAddress = new System.Uri("https://graph.facebook.com") };
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
@@ -45,6 +45,7 @@ namespace API.Controllers
             return Unauthorized();
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -84,15 +85,17 @@ namespace API.Controllers
             return CreateUserDto(user);
         }
 
+        [AllowAnonymous]
         [HttpPost("fbLogin")]
         public async Task<ActionResult<UserDto>> FacebookLogin(string accessToken)
         {
             var fbVerifyKeys = config["Facebook:AppId"] + "|" + config["Facebook:AppSecret"];
-            var verifyToken = await httpClient.GetAsync($"debug_token?input_token={accessToken}&access_token={fbVerifyKeys}");
+            var verifyToken = await httpClient
+                .GetAsync($"debug_token?input_token={accessToken}&access_token={fbVerifyKeys}");
 
             if (verifyToken.IsSuccessStatusCode)
             {
-                var fbUrl = $"me?access_token={accessToken}&fileds=name,email,picture.width(100).height(100)";
+                var fbUrl = $"me?access_token={accessToken}&fields=name,email,picture.width(100).height(100)";
                 var response = await httpClient.GetAsync(fbUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -108,9 +111,11 @@ namespace API.Controllers
                             DisplayName = (string)fbInfo.name,
                             Email = (string)fbInfo.email,
                             UserName = (string)fbInfo.id,
+                            Bio = "New User",
                             Photos = new List<Photo> {
                                 new Photo { Id = "fb_" + (string)fbInfo.id, Url = (string)fbInfo.picture.data.url, IsMain = true }}
                         };
+
 
                         var result = await userManager.CreateAsync(user);
 

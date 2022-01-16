@@ -38,7 +38,7 @@ export default class UserStore {
 		});
 	};
 
-	facebookLogin = async () => {
+	facebookLogin = () => {
 		this.fbLoading = true;
 		const apiLogin = (accessToken: string) => {
 			agent.Account.fbLogin(accessToken)
@@ -56,7 +56,7 @@ export default class UserStore {
 				});
 		};
 
-		if (this.fbAccessToken != null) {
+		if (this.fbAccessToken) {
 			apiLogin(this.fbAccessToken);
 		} else {
 			window.FB.login(
