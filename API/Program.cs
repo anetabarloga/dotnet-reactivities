@@ -37,7 +37,7 @@ app.UseCsp(opt => opt
     .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
     .FormActions(s => s.Self())
     .FrameAncestors(s => s.Self())
-    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "https://www.facebook.com", "https://platform-lookaside.fbsbx.com", "data:", "blob:"))
+    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "https://www.facebook.com", "https://platform-lookaside.fbsbx.com", "https://scontent-frt3-2.xx.fbcdn.net", "data:", "blob:"))
     .ScriptSources(s => s.Self().CustomSources("sha256-vlr3dtCFRyQ4xYPDJ6OPXr661dki/90PZIXzPqkQUVs=", "https://connect.facebook.net", "sha256-yChqzBduCCi4o4xdbXRXh4U/t1rP4UUUMJt+rB+ylUI=", "sha256-clUB7q4Rs1jYkBtsy3N4evH+Fydm4ovWJJn4V1uoDd4=")));
 
 if (app.Environment.IsDevelopment())
