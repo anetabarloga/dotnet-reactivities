@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using System.Text;
 using API.DTO;
 using API.Services;
+using Infrastructure.Email;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 
 namespace API.Controllers;
@@ -15,15 +17,18 @@ public class AccountController : ControllerBase
     private readonly SignInManager<AppUser> signInManager;
     private readonly TokenService tokenService;
     private readonly IConfiguration config;
+    private readonly EmailSender emailSender;
     private readonly HttpClient httpClient;
 
-    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TokenService tokenService, IConfiguration config)
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, TokenService tokenService, IConfiguration config, EmailSender emailSender)
     {
         this.tokenService = tokenService;
         this.config = config;
+        this.emailSender = emailSender;
         this.userManager = userManager;
         this.signInManager = signInManager;
         this.httpClient = new HttpClient { BaseAddress = new System.Uri("https://graph.facebook.com") };
+
     }
 
     [AllowAnonymous]
@@ -35,6 +40,13 @@ public class AccountController : ControllerBase
 
         if (user != null)
         {
+            // for development purposes - allow test user bob to login without email confirmation
+            if (user.UserName == "bob" || user.UserName == "tom")
+                user.EmailConfirmed = true;
+
+            if (!user.EmailConfirmed)
+                return Unauthorized("Email address not confirmed.");
+
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
             if (result.Succeeded)
@@ -44,7 +56,7 @@ public class AccountController : ControllerBase
             }
         }
 
-        return Unauthorized();
+        return Unauthorized("Email or password invalid.");
     }
 
     [AllowAnonymous]
@@ -74,15 +86,45 @@ public class AccountController : ControllerBase
 
         var result = await userManager.CreateAsync(user, registerDto.Password);
 
-        if (result.Succeeded)
-        {
-            await SetRefreshToken(user);
-            return CreateUserDto(user);
-        }
+        if (!result.Succeeded)
+            return BadRequest("Problem registering user.");
 
-        return BadRequest("Registration unsuccessfull.");
+        await SendVerificationEmail(user);
+
+        return Ok("Registration successful - please check your inbox for a verfication email.");
     }
 
+    [AllowAnonymous]
+    [HttpPost("verifyEmail")]
+    public async Task<IActionResult> VerifyEmail(string token, string email)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null) return Unauthorized();
+        var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
+
+        var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
+        var result = await userManager.ConfirmEmailAsync(user, decodedToken);
+
+        if (!result.Succeeded)
+            return BadRequest("Could not verify email address");
+
+        return Ok("Email confirmed. You can now log in.");
+    }
+
+    [AllowAnonymous]
+    [HttpGet("resendEmailConfirmationLink")]
+    public async Task<IActionResult> ResendEmailConfirmation(string email)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+
+        if (user == null)
+            return Unauthorized();
+
+        await SendVerificationEmail(user);
+
+        return Ok("Resend email successful - please check your inbox for a verfication email.");
+
+    }
 
     [HttpGet]
     [Authorize]
@@ -125,6 +167,8 @@ public class AccountController : ControllerBase
                                 new Photo { Id = "fb_" + (string)fbInfo.id, Url = (string)fbInfo.picture.data.url, IsMain = true }}
                     };
 
+                    // don't require email verification through facebook login
+                    user.EmailConfirmed = true;
 
                     var result = await userManager.CreateAsync(user);
 
@@ -175,6 +219,20 @@ public class AccountController : ControllerBase
         };
 
         Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+    }
+
+    private async Task SendVerificationEmail(AppUser user)
+    {
+        var origin = Request.Headers["origin"];
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        // encoding is necessary, otherwise the returned value will be deformed and won't match values stored in db
+        token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+        var verifyUrl = $"{origin}/account/verifyEmail?token={token}&&email={user.Email}";
+        var message = $"<p>Please click the below link to verify your email address.</p><p><a href='{verifyUrl}'>Click to verify email</a></p>";
+
+        await emailSender.SendEmailAsync(user.Email, "Please verify your email", message);
     }
 
     private ActionResult<UserDto> CreateUserDto(AppUser user)

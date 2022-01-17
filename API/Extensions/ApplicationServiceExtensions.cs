@@ -2,6 +2,7 @@ using Application.Activities;
 using Application.Core;
 using Application.Interfaces;
 using Application.Photos;
+using Infrastructure.Email;
 using Infrastructure.Photos;
 using Infrastructure.Security;
 using MediatR;
@@ -65,14 +66,16 @@ public static class ApplicationServiceExtensions
             options.UseNpgsql(connStr);
         });
 
-
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+
         // we must tell the mediator where and in which assembly the handlers are located
         services.AddMediatR(typeof(List.Handler).Assembly);
         services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+
         services.AddScoped<IUserAccessor, UserAccessor>();
         services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+        services.AddScoped<EmailSender>();
 
         services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
 

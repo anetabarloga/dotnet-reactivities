@@ -13,9 +13,11 @@ public static class IdentityServiceExtensions
         services.AddIdentityCore<AppUser>(opt =>
         {
             opt.Password.RequireNonAlphanumeric = false;
+            opt.SignIn.RequireConfirmedEmail = true;
         })
         .AddEntityFrameworkStores<DataContext>()
-        .AddSignInManager<SignInManager<AppUser>>();
+        .AddSignInManager<SignInManager<AppUser>>()
+        .AddDefaultTokenProviders();    // allows to send token for email verification
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
 
@@ -34,12 +36,12 @@ public static class IdentityServiceExtensions
             {
                 OnMessageReceived = context =>
                 {
-                // get token from query string sent with signalR connection 
-                var accessToken = context.Request.Query["access_token"];
+                    // get token from query string sent with signalR connection 
+                    var accessToken = context.Request.Query["access_token"];
                     var path = context.HttpContext.Request.Path;
 
-                // add access token to context to get user data and authenticate to the hub
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                    // add access token to context to get user data and authenticate to the hub
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
                         context.Token = accessToken;
 
                     return Task.CompletedTask;
