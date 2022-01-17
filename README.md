@@ -26,7 +26,6 @@ Disclaimer: Bear in mind that the app is created for learning purposes and thus 
 
     - Interface redesign
     - Email verification & password reset
-    - Social media login via Facebook
     - Private messaging feature
     - Expand user profile features: interest tags, location, age
     - Token refresh

@@ -26,18 +26,20 @@ public static class IdentityServiceExtensions
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
                 ValidateIssuer = false,
-                ValidateAudience = false
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero // remove default 4 min token refresh window
             };
             opt.Events = new JwtBearerEvents
             {
                 OnMessageReceived = context =>
                 {
-                    // get token from query string sent with signalR connection 
-                    var accessToken = context.Request.Query["access_token"];
+                // get token from query string sent with signalR connection 
+                var accessToken = context.Request.Query["access_token"];
                     var path = context.HttpContext.Request.Path;
 
-                    // add access token to context to get user data and authenticate to the hub
-                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                // add access token to context to get user data and authenticate to the hub
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
                         context.Token = accessToken;
 
                     return Task.CompletedTask;

@@ -26,7 +26,12 @@ function App() {
 		if (commonStore.token) {
 			userStore.getUser().finally(() => commonStore.setAppLoaded());
 		} else {
-			userStore.getFacebookLoginStatus().then(() => commonStore.setAppLoaded());
+			// temp to allow local testing without fb https restrictions
+			if (window.FB) {
+				userStore.getFacebookLoginStatus().then(() => commonStore.setAppLoaded());
+			} else {
+				commonStore.setAppLoaded();
+			}
 		}
 	}, [userStore, commonStore]);
 

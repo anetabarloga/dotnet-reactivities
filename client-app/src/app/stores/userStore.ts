@@ -8,6 +8,9 @@ export default class UserStore {
 	user: User | null = null;
 	fbAccessToken: string | null = null;
 	fbLoading = false;
+	refeshTokenTimeout: any;
+
+	private TOKEN_REFRESH_SECONDS = 60;
 
 	constructor() {
 		makeAutoObservable(this);
@@ -21,6 +24,7 @@ export default class UserStore {
 		try {
 			const user = await agent.Account.login(creds);
 			store.commonStore.setToken(user.token);
+			this.StartRefreshTokenTimer(user);
 			runInAction(() => (this.user = user));
 			history.push("/activities");
 			store.modalStore.closeModal();
@@ -44,6 +48,7 @@ export default class UserStore {
 			agent.Account.fbLogin(accessToken)
 				.then((user) => {
 					store.commonStore.setToken(user.token);
+					this.StartRefreshTokenTimer(user);
 					runInAction(() => {
 						this.user = user;
 						this.fbLoading = false;
@@ -79,6 +84,7 @@ export default class UserStore {
 		try {
 			const user = await agent.Account.register(creds);
 			store.commonStore.setToken(user.token);
+			this.StartRefreshTokenTimer(user);
 			runInAction(() => (this.user = user));
 			history.push("/activities");
 			store.modalStore.closeModal();
@@ -87,9 +93,35 @@ export default class UserStore {
 		}
 	};
 
+	refreshToken = async () => {
+		this.StopRefreshTokenTimer();
+		try {
+			const user = await agent.Account.refreshToken();
+			runInAction(() => (this.user = user));
+			store.commonStore.setToken(user.token);
+			this.StartRefreshTokenTimer(user);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	private StartRefreshTokenTimer = (user: User) => {
+		// access token expiry datetime and refresh token 30 seconds before it expires
+		const jwtToken = JSON.parse(atob(user.token.split(".")[1]));
+		const expires = new Date(jwtToken.exp * 1000);
+		const timeout = expires.getTime() - Date.now() - this.TOKEN_REFRESH_SECONDS * 1000;
+		this.refeshTokenTimeout = setTimeout(this.refreshToken, timeout);
+	};
+
+	private StopRefreshTokenTimer = () => {
+		clearTimeout(this.refeshTokenTimeout);
+	};
+
 	getUser = async () => {
 		try {
 			const user = await agent.Account.current();
+			store.commonStore.setToken(user.token);
+			this.StartRefreshTokenTimer(user);
 			runInAction(() => (this.user = user));
 		} catch (error) {
 			console.log(error);
