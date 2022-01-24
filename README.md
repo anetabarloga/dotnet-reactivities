@@ -9,34 +9,34 @@ Disclaimer: The app is created for learning purposes and thus some errors are ex
 
 ## Technology Stack
 
-    - Backend
-        - C# .NET 6.0
-        - SignalR is used for real-time connection for the chat hub feature
-    - Frontend
-        - React with npm & nodeJS
-        - Axios client for http requests
-        - MobX is used for state management client-side
-        - Formik and Yup are used for forms and input validation client-side
-        - Semantic UI is used for out-of-the-box CSS styling
-    - Deployment
-        - Heroku
-        - PostgresQL (migrated from SQLite)
-        - Github
+- Backend
+    - C# .NET 6.0
+    - SignalR is used for real-time connection for the chat hub feature
+- Frontend
+    - React with npm & nodeJS
+    - Axios client for http requests
+    - MobX is used for state management client-side
+    - Formik and Yup are used for forms and input validation client-side
+    - Semantic UI is used for out-of-the-box CSS styling
+- Deployment & source control
+    - Heroku
+    - PostgresQL (migrated from SQLite)
+    - Github
 
 ## Future content
 
-    - Interface redesign
-    - Password reset
-    - Private messaging feature
-    - Expand user profile features: interest tags, location, age
-    - design for mobile
-    - add google maps markers and sorting events by 'nearby' and geolocation
+- Interface redesign
+- Password reset
+- Private messaging feature
+- Expand user profile features: interest tags, location, age
+- design for mobile
+- add google maps markers and sorting events by 'nearby' and geolocation
 
 ## Bug Reports
 
-    - image uploads size restriction
-    - password complexity too steep
-    - permissions issue: logging in as different user after logout does not refresh the feed content. Content must be manually refreshed using Ctlr + R on Windows or Cmd + R on MacOS
+- image uploads size restriction
+- password complexity too steep
+- permissions issue: logging in as different user after logout does not refresh the feed content. Content must be manually refreshed using Ctlr + R on Windows or Cmd + R on MacOS
 
 ## FAQ
 
