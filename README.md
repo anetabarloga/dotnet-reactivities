@@ -2,10 +2,10 @@
 
 # About
 
-The project is a simplictic social platform for group activities planning with real-time chat messaging system. The app is currently deployed through Heroku and can be accessed here:
+The project is a simplistic social platform for group activities planning with real-time chat messaging system. The app is currently deployed through Heroku and can be accessed here (may take a moment to load for the first time):
 https://dotnet-reactivities.herokuapp.com/
 
-Disclaimer: Bear in mind that the app is created for learning purposes and thus some errors are expected. If you notice any, drop me a message as I am planning to maintain the app to further improve my skills.
+Disclaimer: The app is created for learning purposes and thus some errors are expected. If you notice any, feel free to drop me a message as I am planning to maintain the app to further improve my skills.
 
 ## Technology Stack
 
@@ -14,6 +14,7 @@ Disclaimer: Bear in mind that the app is created for learning purposes and thus 
         - SignalR is used for real-time connection for the chat hub feature
     - Frontend
         - React with npm & nodeJS
+        - Axios client for http requests
         - MobX is used for state management client-side
         - Formik and Yup are used for forms and input validation client-side
         - Semantic UI is used for out-of-the-box CSS styling
@@ -29,6 +30,7 @@ Disclaimer: Bear in mind that the app is created for learning purposes and thus 
     - Private messaging feature
     - Expand user profile features: interest tags, location, age
     - design for mobile
+    - add google maps markers and sorting events by 'nearby' and geolocation
 
 ## Bug Reports
 
